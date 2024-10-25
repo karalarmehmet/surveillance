@@ -32,7 +32,7 @@ func setupApp() (*string, error) {
 	databaseName := flag.String("db", "surveillance", "database name")
 	dbSsl := flag.String("dbssl", "disable", "database ssl setting")
 	pusherHost := flag.String("pusherHost", "", "pusher host")
-	pusherPort := flag.String("pusherPort", "443", "pusher port")
+	pusherPort := flag.String("pusherPort", "4001", "pusher port")
 	pusherApp := flag.String("pusherApp", "9", "pusher app id")
 	pusherKey := flag.String("pusherKey", "", "pusher key")
 	pusherSecret := flag.String("pusherSecret", "", "pusher secret")
