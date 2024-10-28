@@ -15,5 +15,5 @@ apps:
     app_id: "1"
     user_events: true
     webhooks:
-      enabled: true
+      enabled: false
       url: "http://127.0.0.1:5000/hook"
