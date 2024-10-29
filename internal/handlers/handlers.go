@@ -369,7 +369,7 @@ func show500(w http.ResponseWriter, r *http.Request) {
 }
 
 func printTemplateError(w http.ResponseWriter, err error) {
-	_, _ = fmt.Fprint(w, fmt.Sprintf(`<small><span class='text-danger'>Error executing template: %s</span></small>`, err))
+	_, _ = fmt.Fprintf(w, `<small><span class='text-danger'>Error executing template: %s</span></small>`, err)
 }
 
 type serviceJSON struct {
