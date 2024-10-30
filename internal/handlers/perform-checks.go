@@ -62,7 +62,7 @@ func (repo *DBRepo) ScheduledCheck(hostServiceID int) {
 
 }
 
-func (repo *DBRepo) updateHostServiceStatusCount(h models.Host, hs models.HostService, newStatus, msg string) {
+func (repo *DBRepo) updateHostServiceStatusCount(_ models.Host, hs models.HostService, newStatus, msg string) {
 	// update host service record in db with status and last check
 	hs.Status = newStatus
 	hs.LastMessage = msg
@@ -182,15 +182,12 @@ func (repo *DBRepo) testServiceForHost(h models.Host, hs models.HostService) (st
 	switch hs.ServiceID {
 	case HTTP:
 		msg, newStatus = testHTTPForHost(h.URL)
-		break
 
 	case HTTPS:
 		msg, newStatus = testHTTPSForHost(h.URL)
-		break
 
 	case SSLCertificate:
 		msg, newStatus = testSSLForHost(h.URL)
-		break
 	}
 
 	// broadcast to clients if appropriate
@@ -224,13 +221,13 @@ func (repo *DBRepo) testServiceForHost(h models.Host, hs models.HostService) (st
 				if newStatus == "healthy" {
 					mm.Subject = fmt.Sprintf("HEALTHY: service %s on %s", hs.Service.ServiceName, hs.HostName)
 					mm.Content = template.HTML(fmt.Sprintf(`<p>Service %s on %s reported healthy status</p>
-						<p><strong>Message received: %s</strong>/p>`, hs.Service.ServiceName, hs.HostName, msg))
+						<p><strong>Message received: %s</strong></p>`, hs.Service.ServiceName, hs.HostName, msg))
 				} else if newStatus == "problem" {
 					mm.Subject = fmt.Sprintf("PROBLEM: service %s on %s", hs.Service.ServiceName, hs.HostName)
 					mm.Content = template.HTML(fmt.Sprintf(`<p>Service %s on %s reported problem</p>
 						<p><strong>Message received: %s</strong></p>`, hs.Service.ServiceName, hs.HostName, msg))
 				} else if newStatus == "warning" {
-
+					// Handle warning case if needed
 				}
 
 				helpers.SendEmail(mm)
@@ -255,7 +252,6 @@ func (repo *DBRepo) testServiceForHost(h models.Host, hs models.HostService) (st
 				log.Println("Error sending sms in peform-checks.go", err)
 			}
 		}
-
 	}
 
 	repo.pushScheduleChangedEvent(hs, newStatus)
@@ -304,10 +300,10 @@ func (repo *DBRepo) pushScheduleChangedEvent(hs models.HostService, newStatus st
 
 // testHTTPForHost tests HTTP service
 func testHTTPForHost(url string) (string, string) {
-	if strings.HasSuffix(url, "/") {
-		url = strings.TrimSuffix(url, "/")
-	}
+	// Unconditionally trim any trailing slash
+	url = strings.TrimSuffix(url, "/")
 
+	// Replace "https://" with "http://"
 	url = strings.Replace(url, "https://", "http://", -1)
 
 	resp, err := http.Get(url)
@@ -326,10 +322,11 @@ func testHTTPForHost(url string) (string, string) {
 // testHTTPSForHost tests HTTPS service
 func testHTTPSForHost(url string) (string, string) {
 	log.Println("Testing HTTPS")
-	if strings.HasSuffix(url, "/") {
-		url = strings.TrimSuffix(url, "/")
-	}
 
+	// Unconditionally trim any trailing slash
+	url = strings.TrimSuffix(url, "/")
+
+	// Replace "http://" with "https://"
 	url = strings.Replace(url, "http://", "https://", -1)
 
 	resp, err := http.Get(url)

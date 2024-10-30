@@ -2,19 +2,20 @@ package handlers
 
 import (
 	"context"
-	"github.com/alexedwards/scs/v2"
-	"github.com/pusher/pusher-http-go"
-	"github.com/robfig/cron/v3"
-	"github.com/karalarmehmet/surveillance/internal/channeldata"
-	"github.com/karalarmehmet/surveillance/internal/config"
-	"github.com/karalarmehmet/surveillance/internal/driver"
-	"github.com/karalarmehmet/surveillance/internal/helpers"
-	"github.com/karalarmehmet/surveillance/internal/repository/dbrepo"
 	"log"
 	"net/http"
 	"os"
 	"testing"
 	"time"
+
+	"github.com/alexedwards/scs/v2"
+	"github.com/karalarmehmet/surveillance/internal/channeldata"
+	"github.com/karalarmehmet/surveillance/internal/config"
+	"github.com/karalarmehmet/surveillance/internal/driver"
+	"github.com/karalarmehmet/surveillance/internal/helpers"
+	"github.com/karalarmehmet/surveillance/internal/repository/dbrepo"
+	"github.com/pusher/pusher-http-go"
+	"github.com/robfig/cron/v3"
 )
 
 var testSession *scs.SessionManager
@@ -95,16 +96,16 @@ func NewTestHandlers(a *config.AppConfig) *DBRepo {
 
 // dummyWs is a type that satisfies the pusher.Client interface
 type dummyWs struct {
-	AppID                        string
-	Key                          string
-	Secret                       string
-	Host                         string // host or host:port pair
-	Secure                       bool   // true for HTTPS
-	Cluster                      string
-	HTTPClient                   *http.Client
-	EncryptionMasterKey          string  // deprecated
-	EncryptionMasterKeyBase64    string  // for E2E
-	validatedEncryptionMasterKey *[]byte // parsed key for use
+	AppID                     string
+	Key                       string
+	Secret                    string
+	Host                      string // host or host:port pair
+	Secure                    bool   // true for HTTPS
+	Cluster                   string
+	HTTPClient                *http.Client
+	EncryptionMasterKey       string // deprecated
+	EncryptionMasterKeyBase64 string // for E2E
+	//validatedEncryptionMasterKey *[]byte // parsed key for use
 }
 
 func (c *dummyWs) Trigger(channel string, eventName string, data interface{}) error {
