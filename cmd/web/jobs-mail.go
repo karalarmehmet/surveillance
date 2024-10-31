@@ -3,17 +3,18 @@ package main
 import (
 	"bytes"
 	"fmt"
-	"github.com/aymerick/douceur/inliner"
-	"github.com/karalarmehmet/surveillance/internal/channeldata"
-	mail "github.com/xhit/go-simple-mail/v2"
 	"html/template"
-	"jaytaylor.com/html2text"
 	"log"
 	"strconv"
 	"time"
+
+	"github.com/aymerick/douceur/inliner"
+	"github.com/karalarmehmet/surveillance/internal/channeldata"
+	mail "github.com/xhit/go-simple-mail/v2"
+	"jaytaylor.com/html2text"
 )
 
-// NewWorker takes a numeric id and a channel w/ worker pool.
+// NewWorker initializes a new worker with an ID and a worker pool channel.
 func NewWorker(id int, workerPool chan chan channeldata.MailJob) Worker {
 	return Worker{
 		id:         id,
@@ -23,7 +24,7 @@ func NewWorker(id int, workerPool chan chan channeldata.MailJob) Worker {
 	}
 }
 
-// Worker holds info for a pool worker
+// Worker holds info for a pool worker.
 type Worker struct {
 	id         int
 	jobQueue   chan channeldata.MailJob
@@ -31,7 +32,7 @@ type Worker struct {
 	quitChan   chan bool
 }
 
-// start starts the worker
+// start launches the worker.
 func (w Worker) start() {
 	go func() {
 		for {
@@ -49,14 +50,7 @@ func (w Worker) start() {
 	}()
 }
 
-// stop the worker
-func (w Worker) stop() {
-	go func() {
-		w.quitChan <- true
-	}()
-}
-
-// NewDispatcher creates, and returns a new Dispatcher object.
+// NewDispatcher creates and returns a new Dispatcher object.
 func NewDispatcher(jobQueue chan channeldata.MailJob, maxWorkers int) *Dispatcher {
 	workerPool := make(chan chan channeldata.MailJob, maxWorkers)
 	return &Dispatcher{
@@ -66,14 +60,14 @@ func NewDispatcher(jobQueue chan channeldata.MailJob, maxWorkers int) *Dispatche
 	}
 }
 
-// Dispatcher holds info for a dispatcher
+// Dispatcher holds info for a dispatcher.
 type Dispatcher struct {
 	workerPool chan chan channeldata.MailJob
 	maxWorkers int
 	jobQueue   chan channeldata.MailJob
 }
 
-// run runs the workers
+// run initializes and starts all workers, then begins dispatching jobs.
 func (d *Dispatcher) run() {
 	for i := 0; i < d.maxWorkers; i++ {
 		worker := NewWorker(i+1, d.workerPool)
@@ -83,20 +77,17 @@ func (d *Dispatcher) run() {
 	go d.dispatch()
 }
 
-// dispatch dispatches worker
+// dispatch handles job distribution by using a for range loop.
 func (d *Dispatcher) dispatch() {
-	for {
-		select {
-		case job := <-d.jobQueue:
-			go func() {
-				workerJobQueue := <-d.workerPool
-				workerJobQueue <- job
-			}()
-		}
+	for job := range d.jobQueue {
+		go func(job channeldata.MailJob) {
+			workerJobQueue := <-d.workerPool
+			workerJobQueue <- job
+		}(job)
 	}
 }
 
-// processMailQueueJob processes the main queue job (sends email)
+// processMailQueueJob processes the mail job and sends the email.
 func (w Worker) processMailQueueJob(mailMessage channeldata.MailData) {
 
 	data := struct {
@@ -128,6 +119,7 @@ func (w Worker) processMailQueueJob(mailMessage channeldata.MailData) {
 	var tpl bytes.Buffer
 	if err := t.Execute(&tpl, data); err != nil {
 		fmt.Print(err)
+		return // Early return on error
 	}
 
 	result := tpl.String()
@@ -165,6 +157,7 @@ func (w Worker) processMailQueueJob(mailMessage channeldata.MailData) {
 	smtpClient, err := server.Connect()
 	if err != nil {
 		log.Println(err)
+		return // Early return on error
 	}
 
 	email := mail.NewMSG()

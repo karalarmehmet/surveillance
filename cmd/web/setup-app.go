@@ -45,6 +45,14 @@ func setupApp() (*string, error) {
 		os.Exit(1)
 	}
 
+	// Create necessary directories if they don't exist
+	requiredDirs := []string{"./uploads", "./logs"}
+	for _, dir := range requiredDirs {
+		if err := createDirIfNotExist(dir); err != nil {
+			return insecurePort, fmt.Errorf("failed to create directory %s: %w", dir, err)
+		}
+	}
+
 	log.Println("Connecting to database....")
 	dsnString := ""
 
@@ -161,7 +169,7 @@ func setupApp() (*string, error) {
 	return insecurePort, err
 }
 
-// createDirIfNotExist creates a directory if it does not exist
+// createDirIfNotExist creates a directory if it does not exist.
 func createDirIfNotExist(path string) error {
 	const mode = 0755
 	if _, err := os.Stat(path); os.IsNotExist(err) {
