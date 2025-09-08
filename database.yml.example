@@ -1,9 +1,9 @@
 development:
   dialect: postgres
-  database:
-  user:
+  database: surveillance
+  user: mehmetkaralar
   password:
-  host: localhost
+  host: host.docker.internal
   pool: 5
 
 test:
