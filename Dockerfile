@@ -1,6 +1,7 @@
 # --- Build stage (what you already have) ---
 FROM golang:1.23.2-alpine AS builder
 WORKDIR /app
+RUN mkdir -p ./uploads && chown -R appuser:appuser ./uploads
 COPY go.mod go.sum ./
 RUN go mod download
 COPY . .
@@ -11,6 +12,7 @@ RUN go build -o surveillance cmd/web/*.go
 
 FROM alpine:3.18
 WORKDIR /app
+RUN mkdir -p ./uploads && chown -R appuser:appuser ./uploads
 
 # Copy the compiled binary AND the run script from the builder stage
 COPY --from=builder /app/surveillance .
