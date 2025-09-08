@@ -1,28 +1,41 @@
-# --- Build stage (what you already have) ---
+# --- Build Stage ---
+# (This stage is mostly fine, just removed the unnecessary mkdir/chown)
 FROM golang:1.23.2-alpine AS builder
 WORKDIR /app
-RUN mkdir -p ./uploads && chown -R appuser:appuser ./uploads
 COPY go.mod go.sum ./
 RUN go mod download
 COPY . .
+# These steps are fine
 RUN cp run.sh.example run.sh
 RUN cp database.yml.example database.yml
 RUN chmod +x run.sh
+# Build the Go application
 RUN go build -o surveillance cmd/web/*.go
 
+# --- Final Stage ---
 FROM alpine:3.18
 WORKDIR /app
-RUN mkdir -p ./uploads && chown -R appuser:appuser ./uploads
 
-# Copy the compiled binary AND the run script from the builder stage
+# 1. Create the user and group FIRST
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+
+# 2. Create the directory for uploads
+RUN mkdir -p ./uploads
+
+# 3. Copy the necessary files from the builder stage
 COPY --from=builder /app/surveillance .
-COPY --from=builder /app/run.sh .  
+COPY --from=builder /app/run.sh .
 
+# 4. Change ownership of ALL app files and directories at once
+RUN chown -R appuser:appgroup /app
+
+# 5. Clean up the run.sh script (if needed)
 RUN sed -i 's/\r$//' ./run.sh
 
-# Create and switch to a non-root user
-RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+# 6. Switch to the non-root user
 USER appuser
 
+# Expose the port and set the default command
 EXPOSE 4000
+# Your CMD was already correct!
 CMD ["./run.sh"]
