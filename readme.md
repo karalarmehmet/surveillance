@@ -65,7 +65,7 @@ Run with flags:
 
 ## All Flags
 
-
+./surveillance -help
 Usage of ./surveillance:
   -db string
         database name (default "surveillance")
