@@ -64,7 +64,7 @@ Run with flags:
 ~~~~
 
 ## All Flags
-
+```bash
 ./surveillance -help
 Usage of ./surveillance:
   -db string
@@ -97,5 +97,4 @@ Usage of ./surveillance:
         pusher secret
    -pusherSecure
         pusher server uses SSL (true or false)
-~~~~
-
+```
