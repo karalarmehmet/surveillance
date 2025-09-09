@@ -15,7 +15,7 @@ Build in the normal way on Mac/Linux:
 go build -o surveillance cmd/web/*.go
 ~~~
 
-Or on Windows:
+Or on Windows::
 
 ~~~
 go build -o surveillance.exe cmd/web/.
